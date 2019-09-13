@@ -10,9 +10,31 @@ engine = db.createEngine()
 
 app = Flask(__name__)
 
+#Stateless interaction
 @app.route('/cuantasletras/<nombre>')
 def cuantas_letras(nombre):
     return str(len(nombre))
+
+#Stateful interaction
+@app.route('/suma/<numero>')
+def suma(numero):
+    if 'suma' not in session:
+        session['suma']=0
+    suma = session['suma']
+    suma = suma+int(numero)
+    session['suma']=suma
+    return str(suma)
+
+#Stateful interaction
+@app.route('/authenticate',methods = ['POST'])
+def authenticate():
+    username = request.form['username']
+    password = request.form['password']
+    if username == 'jbellido' and password == 'qwerty':
+        session['usuario'] = username
+        return "Welcome "+username
+    else:
+        return "Sorry "+username+" you are not a valid user"
 
 
 @app.route('/')
@@ -181,6 +203,7 @@ def send_message():
     session.commit()
     return 'Message sent'
 
+""""
 @app.route('/authenticate', methods = ['POST'])
 def authenticate():
     #Get data form request
@@ -203,6 +226,7 @@ def authenticate():
     except Exception:
         message = {'message':'Unauthorized'}
         return Response(message, status=401,mimetype='application/json')
+"""
 
 @app.route('/current', methods = ['GET'])
 def current_user():
